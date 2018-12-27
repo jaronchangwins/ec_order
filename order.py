@@ -56,7 +56,7 @@ def EditData(sql,data):
   cur = conn.cursor() 
   cur.execute(sql,data)
   conn.commit()
-  str_result = 'Success'
+  str_result = '{"data": "Success"}'
   return str_result
 
 def getData(sql):
