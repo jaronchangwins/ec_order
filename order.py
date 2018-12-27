@@ -14,6 +14,26 @@ os.environ['NLS_LANG'] = 'SIMPLIFIED CHINESE_CHINA.UTF8'
 def home():
    return "Jaron"
 
+@app.route('/Seller/Create', methods=['POST'])
+def SellerCreate():
+	  order_name = request.form.get('OrderName')
+	  order_size = request.form.get('OrderSize')
+	  order_count = request.form.get('OrderCount')
+	  order_desc = request.form.get('OrderDesc')
+	  order_total= request.form.get('OrderTotal')
+	  order_percent = request.form.get('OrderPercent')
+	  order_deposit = request.form.get('OrderDeposit')
+	  order_balance = request.form.get('OrderBalance')
+	  buyer_name = request.form.get('BuyerName')
+	  sql="select user_id from tb_user where user_name=%s"
+	  data =(buyer_name)
+	  buyer_id = getOneData(sql,data)
+	  product_time = request.form.get('ProductTime')
+	  data = (buyer_id,1002,115,order_name,order_size,order_desc,order_count,order_total,order_percent,60,order_deposit,order_balance,product_time)
+	  sql = "INSERT INTO tb_order ( buyer_id,sell_id,order_status_id,order_name,order_size,order_desc,order_count,order_total,order_percent_id,order_fee,order_deposit,order_balance,product_time) VALUES  (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
+	  str_result = EditData(sql,data)
+	  return str_result
+
 @app.route('/Buyer/GetList', methods=['POST'])
 def BuyerGetList():
   statusId = request.form.get('statusId')
@@ -31,10 +51,10 @@ def BuyerGetWaiDeposit():
 
 
 
-def EditData(sql):
+def EditData(sql,data):
   conn = pymysql.connect(host = '59.127.224.170', user = 'yali',  passwd = "qazxcdews",  db = 'Purchasing', port = 3307)  
   cur = conn.cursor() 
-  cur.execute(sql)
+  cur.execute(sql,data)
   conn.commit()
   str_result = 'Success'
   return str_result
@@ -53,7 +73,9 @@ def getData(sql):
     rowdata = {}
     for idx, i in enumerate(column_list, start = 0):
       value = row[idx]
-      if type(value) is datetime.datetime:
+      if value is None:
+        rowdata[column_list[idx]] = ''
+      elif type(value) is datetime.datetime:
         rowdata[column_list[idx]] = myconverter(row[idx])
       elif type(value) is int:
         rowdata[column_list[idx]] = str(row[idx]).strip()
@@ -63,6 +85,15 @@ def getData(sql):
   datas['data'] = result
   str_result = json.dumps(datas)
   return str_result
+
+
+def getOneData(sql,data):
+  conn = pymysql.connect(host = '59.127.224.170', user = 'yali',  passwd = "qazxcdews",  db = 'Purchasing', port = 3307)
+
+  cur = conn.cursor()
+  cur.execute(sql,data)
+  data = cur.fetchone()
+  return data
 
 
 def myconverter(o):
