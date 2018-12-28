@@ -42,8 +42,28 @@ def BuyerPayDeposit():
 	  cargoTime = request.form.get('cargoTime')
 	  bank= request.form.get('bank')
 	  accountNum = request.form.get('accountNum')
-	  data = (117,payType,cargoType,cargoTime,bank,accountNum,orderId)
-	  sql = "update tb_order set order_status_id=%s,order_pay_type =%s ,cargo_type =%s ,cargo_time = %s,order_bank=%s,order_account_num=%s where order_id=%s"
+	  data = (117,payType,cargoType,cargoTime,bank,accountNum,'頭款',orderId)
+	  sql = "update tb_order set order_status_id=%s,order_pay_type =%s ,cargo_type =%s ,cargo_time = %s,order_bank=%s,order_account_num=%s,deposit_detail=%s where order_id=%s"
+
+	  str_result = EditData(sql,data)
+	  return str_result
+
+@app.route('/Buyer/PayBalance', methods=['POST'])
+def BuyerPayBalance():
+	  orderId = request.form.get('orderId')
+	  data = (120,'尾款＋運費',orderId)
+	  sql = "update tb_order set order_status_id=%s,balance_detail=%s where order_id=%s"
+
+	  str_result = EditData(sql,data)
+	  return str_result
+
+@app.route('/Seller/Finish', methods=['POST'])
+def SellerFinish():
+	  orderId = request.form.get('orderId')
+	  cargoCompany = request.form.get('cargoCompany')
+	  cargoId = request.form.get('cargoId')
+	  data = (122,cargoCompany,cargoId,orderId)
+	  sql = "update tb_order set order_status_id=%s,cargo_company=%s,cargo_id=%s where order_id=%s"
 
 	  str_result = EditData(sql,data)
 	  return str_result
@@ -76,7 +96,7 @@ def BuyerGetWaiDeposit():
 @app.route('/All/GetDetail', methods=['POST'])
 def AllGetDetail():
   orderId = request.form.get('orderId')
-  sql="select o.order_id as \'OrderId\',s.status_name as \'OrderStatus\',o.order_name as \'OrderName\',o.order_desc  as \'OrderDesc\',pt.product_time_name as  \'ProductTime\',o.order_count as \'Count\',o.order_total as \'Total\' ,p.percent_name as \'Percent\',o.order_deposit as \'Deposit\' ,o.order_balance as \'Balance\',o.order_fee as \'Fee\',u.user_name as \'Name\',u.user_phone as \'Phone\',u.user_address as \'Address\',u.user_email as \'Email\',o.order_pay_type as \'PayType\',o.order_bank as \'Bank\',o.order_account_num as \'AccountNum\',o.cargo_type as \'CargoType\',o.cargo_time as \'CargoTime\',o.cargo_company as \'CargoCompany\',o.cargo_id as \'CargoId\'from tb_order o inner join tb_user u on o.buyer_id = u.user_id inner join v_status s on o.order_status_id = s.status_id inner join v_percent p on o.order_percent_id = p.percent_id inner join v_product_time pt on o.product_time = pt.product_time_id  where o.order_id= \'" + orderId + "\'"
+  sql="select o.order_id as \'OrderId\',s.status_name as \'OrderStatus\',o.order_name as \'OrderName\',o.order_desc  as \'OrderDesc\',pt.product_time_name as  \'ProductTime\',o.order_count as \'Count\',o.order_total as \'Total\' ,p.percent_name as \'Percent\',o.order_deposit as \'Deposit\' ,o.order_balance as \'Balance\',o.order_fee as \'Fee\',u.user_name as \'Name\',u.user_phone as \'Phone\',u.user_address as \'Address\',u.user_email as \'Email\',o.order_pay_type as \'PayType\',o.order_bank as \'Bank\',o.order_account_num as \'AccountNum\',o.cargo_type as \'CargoType\',o.cargo_time as \'CargoTime\',o.cargo_company as \'CargoCompany\',o.cargo_id as \'CargoId\',o.deposit_detail as \'DepositDetail\', order_balance + order_fee as \'BalanceFee\',order_total+order_fee as \'TotalFee\' from tb_order o inner join tb_user u on o.buyer_id = u.user_id inner join v_status s on o.order_status_id = s.status_id inner join v_percent p on o.order_percent_id = p.percent_id inner join v_product_time pt on o.product_time = pt.product_time_id  where o.order_id= \'" + orderId + "\'"
   str_result = getData(sql)
   return str_result
 
